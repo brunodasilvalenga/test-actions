@@ -29,13 +29,13 @@ jobs:
     - name: Publish Artifacts
       uses: actions/upload-artifact@v1.0.0
       with:
-        name: terraform-plan-${{ matrix.workspace }}"
-        path: .terraform-plan-${{ matrix.workspace }}"
+        name: terraform-plan-${{ matrix.workspace }}
+        path: .terraform-plan-${{ matrix.workspace }}
 
 
   terraform-apply-dev:
     needs: terraform-plan
-    name: 'Terraform Apply'
+    name: 'Terraform Apply Dev'
     environment: dev
     runs-on: ubuntu-latest
     defaults:
@@ -53,7 +53,7 @@ jobs:
 
   terraform-apply-prod:
     needs: terraform-plan
-    name: 'Terraform Apply'
+    name: 'Terraform Apply Prod'
     environment: production
     runs-on: ubuntu-latest
     defaults:
