@@ -7,15 +7,12 @@ on:
   pull_request:
 
 jobs:
-  terraform-plan:
-    name: 'Terraform Plan'
+  terraform-plan-dev:
+    name: 'Terraform Plan DEV'
     runs-on: ubuntu-latest
     defaults:
       run:
         shell: bash
-    strategy:
-      matrix:
-        workspace: ['workspace_dev', 'workspace_prod']
     steps:
     - name: Terraform Init
       run: echo "terraform init"
@@ -24,17 +21,17 @@ jobs:
       run: echo "terraform fmt -check"
 
     - name: Terraform Plan
-      run: echo "terraform apply -out=.terraform-plan-${{ matrix.workspace }}" > .terraform-plan-${{ matrix.workspace }}
+      run: echo "terraform apply -out=.terraform-plan-dev" > .terraform-plan-dev
 
     - name: Publish Artifacts
       uses: actions/upload-artifact@v1.0.0
       with:
-        name: terraform-plan-${{ matrix.workspace }}
-        path: .terraform-plan-${{ matrix.workspace }}
+        name: terraform-plan-dev
+        path: .terraform-plan-dev
 
 
   terraform-apply-dev:
-    needs: terraform-plan
+    needs: terraform-plan-dev
     name: 'Terraform Apply Dev'
     environment: dev
     runs-on: ubuntu-latest
@@ -51,8 +48,31 @@ jobs:
       if: github.ref == 'refs/heads/main' && github.event_name == 'push'
       run: cat .terraform-plan-workspace_dev
 
+
+  terraform-plan-prod:
+    name: 'Terraform Plan Prod'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+    - name: Terraform Init
+      run: echo "terraform init"
+
+    - name: Terraform Format
+      run: echo "terraform fmt -check"
+
+    - name: Terraform Plan
+      run: echo "terraform apply -out=.terraform-plan-prod" > .terraform-plan-prod
+
+    - name: Publish Artifacts
+      uses: actions/upload-artifact@v1.0.0
+      with:
+        name: terraform-plan-prod
+        path: .terraform-plan-prod
+
   terraform-apply-prod:
-    needs: terraform-plan
+    needs: terraform-plan-prod
     name: 'Terraform Apply Prod'
     environment: production
     runs-on: ubuntu-latest
